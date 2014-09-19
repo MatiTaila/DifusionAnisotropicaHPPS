@@ -1,2 +1,3 @@
-c/build/
+c/build/*.o
+c/build/difusionAnisotropica
 doc/consulta_matias_pde.mp4
