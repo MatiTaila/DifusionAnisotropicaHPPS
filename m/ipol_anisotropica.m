@@ -25,10 +25,13 @@ imR		= im + randn(M,N,O)*0.05;
 %% Detector
 
 figure;
-	plot(0:1/255:1,1./(1+((0:1/255:1)/sigma).^2))
+	plot(0:255,1./(1+((0:1/255:1)/sigma).^2),'color',[243, 132, 0]/256, 'linewidth',3 )
 	hold on
-	plot(0:1/255:1,exp(-((0:1/255:1)/sigma).^2), 'r')
-	legend('Lorentziano', 'Leclerc (exponencial)')
+	plot(0:255,exp(-((0:1/255:1)/sigma).^2), 'color',[0,0,128]/256    , 'linewidth', 3 )
+	legend('\fontsize{14}Lorentziano', '\fontsize{14}Leclerc (exponencial)')
+    axis tight
+    xlabel('\fontsize{16}Diferencia en niveles de gris')
+    ylabel('\fontsize{16}g')
 
 %% La Majuga	
 

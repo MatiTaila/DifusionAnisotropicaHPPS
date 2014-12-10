@@ -5,9 +5,30 @@
 #define LAMBDA 0.08
 #define NITER 75
 
-void difusionAnisotropicaGrises(Imagen* imIn, Imagen* imOut){
-	int iter, i, j, current, west, east, north, south, width, height;
+float difusionIteration(int i, int j,int width, int height, int current,float* subIn){
 	double dW, dE, dN, dS, gDw, gDe, gDn, gDs;
+
+	int west  = ((j-1)<0)?i*width:i*width+j-1;
+	int east  = ((j+1)>(width-1))?i*width+width-1:i*width+j+1;
+	int north = ((i-1)<0)?j:(i-1)*width+j;
+	int south = ((i+1)>(height-1))?(height-1)*width+j:(i+1)*width+j;
+
+	dW = (double)(subIn[west]-subIn[current]);
+	dE = (double)(subIn[east]-subIn[current]);
+	dN = (double)(subIn[north]-subIn[current]);
+	dS = (double)(subIn[south]-subIn[current]);
+
+	gDn = 1/(1+(dN/SIGMA)*(dN/SIGMA));
+	gDs = 1/(1+(dS/SIGMA)*(dS/SIGMA));
+	gDe = 1/(1+(dE/SIGMA)*(dE/SIGMA));
+	gDw = 1/(1+(dW/SIGMA)*(dW/SIGMA));
+
+	return subIn[current] + ( LAMBDA * (gDn*(double)dN + gDs*(double)dS + 
+				gDe*(double)dE + gDw*(double)dW) );
+}
+
+void difusionAnisotropicaGrises(Imagen* imIn, Imagen* imOut){
+	int iter, i, j, current, width, height;
 	float* aux;
 	width  = imIn->ancho;
 	height = imIn->alto;
@@ -23,25 +44,7 @@ void difusionAnisotropicaGrises(Imagen* imIn, Imagen* imOut){
 		for(i=0;i<height;i++)
 			for(j=0;j<width;j++){
 				current = i*width+j;
-
-				west  = ((j-1)<0)?i*width:i*width+j-1;
-				east  = ((j+1)>(width-1))?i*width+width-1:i*width+j+1;
-				north = ((i-1)<0)?j:(i-1)*width+j;
-				south = ((i+1)>(height-1))?(height-1)*width+j:(i+1)*width+j;
-
-				dW = (double)(subIn[west]-subIn[current]);
-				dE = (double)(subIn[east]-subIn[current]);
-				dN = (double)(subIn[north]-subIn[current]);
-				dS = (double)(subIn[south]-subIn[current]);
-
-				gDn = 1/(1+((double)dN/(double)SIGMA)*((double)dN/(double)SIGMA));
-				gDs = 1/(1+((double)dS/(double)SIGMA)*((double)dS/(double)SIGMA));
-				gDe = 1/(1+((double)dE/(double)SIGMA)*((double)dE/(double)SIGMA));
-				gDw = 1/(1+((double)dW/(double)SIGMA)*((double)dW/(double)SIGMA));
-
-				subOut[current] = subIn[current] + 
-					( LAMBDA * (gDn*(double)dN + gDs*(double)dS + 
-							gDe*(double)dE + gDw*(double)dW) );
+				subOut[current] = difusionIteration(i, j, width, height, current, subIn);
 			}
 		aux = subIn;
 		subIn = subOut;
